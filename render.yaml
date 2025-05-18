@@ -1,0 +1,97 @@
+services:
+  - type: web
+    name: n8n
+    env: docker
+    repo: https://github.com/drezin14/meu-n8n-render
+    dockerCommand: docker-compose up n8n
+    autoDeploy: true
+    envVars:
+      - key: WEBHOOK_URL
+        value: https://n8n.onrender.com
+      - key: N8N_BASIC_AUTH_ACTIVE
+        value: true
+      - key: N8N_BASIC_AUTH_USER
+        value: andre
+      - key: N8N_BASIC_AUTH_PASSWORD
+        value: #14drezin97#
+      - key: GENERIC_TIMEZONE
+        value: America/Sao_Paulo
+      - key: N8N_LOG_LEVEL
+        value: debug
+      - key: N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE
+        value: true
+      - key: DB_TYPE
+        value: postgresdb
+      - key: DB_POSTGRESDB_HOST
+        fromService:
+          type: database
+          name: postgres
+          property: host
+      - key: DB_POSTGRESDB_PORT
+        value: 5432
+      - key: DB_POSTGRESDB_DATABASE
+        fromService:
+          type: database
+          name: postgres
+          property: databaseName
+      - key: DB_POSTGRESDB_USER
+        fromService:
+          type: database
+          name: postgres
+          property: user
+      - key: DB_POSTGRESDB_PASSWORD
+        fromService:
+          type: database
+          name: postgres
+          property: password
+    disk:
+      name: n8n-data
+      mountPath: /home/node/.n8n
+      sizeGB: 1
+
+  - type: redis
+    name: redis
+    ipAllowList: []
+    envVars:
+      - key: REDIS_USER
+        value: redis_user
+      - key: REDIS_PASSWORD
+        value: Redis#14drezin97#
+
+  - type: database
+    name: postgres
+    ipAllowList: []
+    databaseName: n8n_db
+    user: n8n_user
+    envVars:
+      - key: POSTGRES_USER
+        value: n8n_user
+      - key: POSTGRES_PASSWORD
+        value: Postgres#14drezin97#
+      - key: POSTGRES_DB
+        value: n8n_db
+    disk:
+      name: pgdata
+      mountPath: /var/lib/postgresql/data
+      sizeGB: 1
+
+  - type: web
+    name: waha
+    env: docker
+    repo: https://github.com/drezin14/meu-n8n-render
+    dockerCommand: docker-compose up waha
+    autoDeploy: true
+    envVars:
+      - key: WHATSAPP_HOOK_URL
+        value: https://n8n.onrender.com/webhook/webhook
+      - key: WHATSAPP_DEFAULT_ENGINE
+        value: GOWS
+      - key: WHATSAPP_HOOK_EVENTS
+        value: message
+    disk:
+      name: waha-sessions
+      mountPath: /app/.sessions
+      sizeGB: 1
+      name: waha-media
+      mountPath: /app/.media
+      sizeGB: 1
